@@ -1,23 +1,21 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Item {
+public class User {
     @NotEmpty
     @NotNull(message = "name не может быть null")
     private String name;
-    @NotEmpty
-    private String description;
-    @NotNull(message = "available не может быть null")
-    private Boolean available;
+    @Email
+    @NotNull(message = "email не может быть null")
+    private String email;
 }
