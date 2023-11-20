@@ -1,24 +1,25 @@
 package ru.practicum.shareit.user.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.model.NotFoundException;
 import ru.practicum.shareit.exception.model.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final Map<Integer, User> userMap = new HashMap<>();
-    private Integer id = 1;
+    private final UserRepository repository;
+
+    private int id = 1;
 
 
-    private UserDto mapperUser(Integer id, User user) {
+    private UserDto mapToDto(Integer id, User user) {
         return UserDto.builder()
                 .id(id)
                 .name(user.getName())
@@ -26,52 +27,53 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-    private boolean checkUniqueEmail(Integer id, User user) {
-        Optional<User> userOptional = userMap.entrySet().stream()
-                .filter(user1 -> user1.getValue().getEmail().equals(user.getEmail()) && !user1.getKey().equals(id))
-                .map(Map.Entry::getValue)
-                .findFirst();
-        return userOptional.isPresent();
+    private User mapToModel(UserDto user) {
+        return User.builder()
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
+    }
+
+    private boolean checkUniqueEmail(int id, UserDto user) {
+        return repository.getByEmail(id, user.getEmail()).isPresent();
     }
 
     @Override
-    public UserDto saveUser(User user) {
+    public UserDto saveUser(UserDto user) {
         if (checkUniqueEmail(id, user)) throw new ValidationException("Пользователь с таким email существует");
-        Integer newId = id++;
-        userMap.put(newId, user);
-        return mapperUser(newId, user);
+        int newId = id++;
+        repository.saveUser(newId, mapToModel(user));
+        User user1 = mapToModel(user);
+        return mapToDto(newId, user1);
     }
 
     @Override
-    public UserDto updateUser(Integer id, User user) {
-        User userFromMap = userMap.get(id);
-        if (userFromMap == null) throw new NotFoundException("Пользователь не найден");
+    public UserDto updateUser(int id, UserDto user) {
+        User userFromMap = repository.getById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         if (user.getEmail() != null && checkUniqueEmail(id, user)) {
             throw new ValidationException("Пользователь с таким email существует");
         }
         if (user.getEmail() != null) userFromMap.setEmail(user.getEmail());
         if (user.getName() != null) userFromMap.setName(user.getName());
-        return mapperUser(id, userFromMap);
+        return mapToDto(id, userFromMap);
     }
 
     @Override
-    public UserDto getById(Integer id) {
-        User userFromMap = userMap.get(id);
-        if (userFromMap == null) throw new NotFoundException("Пользователь не найден");
-        return mapperUser(id, userFromMap);
+    public UserDto getById(int id) {
+        User userFromMap = repository.getById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        return mapToDto(id, userFromMap);
     }
 
     @Override
-    public void deleteUser(Integer id) {
-        User userFromMap = userMap.get(id);
-        if (userFromMap == null) throw new NotFoundException("Пользователь не найден");
-        userMap.remove(id);
+    public void deleteUser(int id) {
+        repository.getById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        repository.deleteUser(id);
     }
 
     @Override
     public List<UserDto> getAll() {
-        return userMap.entrySet().stream()
-                .map(userEntry -> mapperUser(userEntry.getKey(), userEntry.getValue()))
+        return repository.getAll().entrySet().stream()
+                .map(userEntry -> mapToDto(userEntry.getKey(), userEntry.getValue()))
                 .collect(Collectors.toList());
     }
 }

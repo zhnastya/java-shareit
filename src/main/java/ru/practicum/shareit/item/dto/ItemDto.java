@@ -5,13 +5,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class ItemDto {
     private Integer id;
+    @NotEmpty
+    @NotNull(message = "name не может быть null")
     private String name;
+    @NotEmpty
     private String description;
-    private boolean available;
+    @NotNull(message = "available не может быть null")
+    private Boolean available;
 }
