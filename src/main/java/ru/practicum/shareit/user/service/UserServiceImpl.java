@@ -11,28 +11,14 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.shareit.user.mapper.UserMapper.mapToDto;
+import static ru.practicum.shareit.user.mapper.UserMapper.mapToModel;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
-
     private int id = 1;
-
-
-    private UserDto mapToDto(Integer id, User user) {
-        return UserDto.builder()
-                .id(id)
-                .name(user.getName())
-                .email(user.getEmail())
-                .build();
-    }
-
-    private User mapToModel(UserDto user) {
-        return User.builder()
-                .name(user.getName())
-                .email(user.getEmail())
-                .build();
-    }
 
     private boolean checkUniqueEmail(int id, UserDto user) {
         return repository.getByEmail(id, user.getEmail()).isPresent();

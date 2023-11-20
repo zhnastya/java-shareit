@@ -14,29 +14,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static ru.practicum.shareit.item.mapper.ItemMapper.mapperToDto;
+import static ru.practicum.shareit.item.mapper.ItemMapper.mapperToModel;
+
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final ItemRepository repository;
     private Integer id = 1;
-
-    private ItemDto mapperToDto(Integer id, Item item) {
-        return ItemDto.builder()
-                .id(id)
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .build();
-    }
-
-    private Item mapperToModel(ItemDto item) {
-        return Item.builder()
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .build();
-    }
 
     private Map<Integer, Item> checkContainsItem(int userId) {
         return repository.getUserItem(userId).orElseThrow(() -> new NotFoundException("Товар не найден"));
