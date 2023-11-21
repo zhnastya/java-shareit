@@ -7,9 +7,9 @@ import ru.practicum.shareit.user.model.User;
 @Component
 public class UserMapper {
 
-    public static UserDto mapToDto(Integer id, User user) {
+    public static UserDto mapToDto(User user) {
         return UserDto.builder()
-                .id(id)
+                .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .build();

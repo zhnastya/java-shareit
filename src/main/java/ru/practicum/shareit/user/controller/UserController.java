@@ -18,31 +18,41 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> getAll() {
-        return service.getAll();
+        log.info("Запрос на получение всех пользователей");
+        List<UserDto> dtoList = service.getAll();
+        log.info("Список всех пользователей отправлен");
+        return dtoList;
     }
 
     @PostMapping
     public UserDto saveUser(@Valid @RequestBody UserDto user) {
         log.info("Запрос на сохранение пользователя");
-        return service.saveUser(user);
+        UserDto dto = service.saveUser(user);
+        log.info("Пользователь сохранен, id - " + dto.getId());
+        return dto;
     }
 
     @GetMapping("/{userId}")
     public UserDto getById(@PathVariable int userId) {
         log.info("Запрос на получение пользователя - " + userId);
-        return service.getById(userId);
+        UserDto dto = service.getById(userId);
+        log.info("Пользователь отправлен, id - " + dto.getId());
+        return dto;
     }
 
     @PatchMapping("/{userId}")
     public UserDto updateUser(@PathVariable int userId,
                               @RequestBody UserDto user) {
         log.info("Запрос на обновление пользователя - " + userId);
-        return service.updateUser(userId, user);
+        UserDto dto = service.updateUser(userId, user);
+        log.info("Пользователь обновлен, id - " + dto.getId());
+        return dto;
     }
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable int userId) {
         log.info("Запрос на удаление пользователя - " + userId);
         service.deleteUser(userId);
+        log.info("Пользователь удален, id - " + userId);
     }
 }
