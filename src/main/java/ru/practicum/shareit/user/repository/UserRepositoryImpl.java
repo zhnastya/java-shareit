@@ -8,25 +8,26 @@ import ru.practicum.shareit.user.model.User;
 import java.util.*;
 
 @Repository
-public class UserRepoImpl implements UserRepo {
+public class UserRepositoryImpl implements UserRepository {
     private final Map<Integer, User> userMap = new HashMap<>();
+    private final Set<String> emails = new HashSet<>();
     private int id = 1;
 
 
-    private boolean checkUniqueEmail(User user) {
-        return getByEmail(user.getId(), user.getEmail()).isPresent();
-    }
-
-    public Optional<User> getByEmail(int id, String email) {
+    private boolean checkUniqueEmail(int userId, String email) {
+        if (emails.add(email)) {
+            return true;
+        }
         return userMap.values().stream()
                 .filter(x -> x.getEmail().equals(email)
-                        && x.getId() != id)
-                .findFirst();
+                        && !x.getId().equals(userId))
+                .findFirst()
+                .isEmpty();
     }
 
     @Override
     public void saveUser(User user) {
-        if (checkUniqueEmail(user)) {
+        if (!checkUniqueEmail(0, user.getEmail())) {
             throw new ConflictException("Пользователь с таким email уже существует");
         }
         int newId = id++;
@@ -35,14 +36,14 @@ public class UserRepoImpl implements UserRepo {
     }
 
     @Override
-    public User updateUser(User user) {
-        if (!userMap.containsKey(user.getId())) {
-            throw new NotFoundException("Пользователь с id - " + user.getId() + " не найден");
+    public User updateUser(int id, User user) {
+        if (!userMap.containsKey(id)) {
+            throw new NotFoundException("Пользователь с id - " + id + " не найден");
         }
-        if (checkUniqueEmail(user)) {
+        if (!checkUniqueEmail(id, user.getEmail())) {
             throw new ConflictException("Пользователь с таким email уже существует");
         }
-        User userFromMap = userMap.get(user.getId());
+        User userFromMap = userMap.get(id);
         if (user.getEmail() != null) {
             userFromMap.setEmail(user.getEmail());
         }
@@ -59,7 +60,8 @@ public class UserRepoImpl implements UserRepo {
 
     @Override
     public void deleteUser(int id) {
-        userMap.remove(id);
+        User user = userMap.remove(id);
+        emails.remove(user.getEmail());
     }
 
     @Override

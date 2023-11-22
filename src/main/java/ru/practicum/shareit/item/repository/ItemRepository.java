@@ -5,7 +5,7 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.List;
 import java.util.Optional;
 
-public interface ItemRepo {
+public interface ItemRepository {
     void saveItem(Item item);
 
     Optional<Item> getItem(int id);

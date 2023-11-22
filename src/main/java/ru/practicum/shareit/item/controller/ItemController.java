@@ -44,7 +44,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getUserItems(@RequestHeader("X-Sharer-User-Id") Integer userId) {
+    public List<ItemDto> getUserItems(@RequestHeader("X-Sharer-User-Id") int userId) {
         log.info("Запрос на получение товаров пользователя - " + userId);
         List<ItemDto> dtoList = service.getAllByUser(userId);
         log.info("Отправлены товары пользователя - " + userId);
@@ -52,7 +52,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getSearchItem(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public List<ItemDto> getSearchItem(@RequestHeader("X-Sharer-User-Id") int userId,
                                        @RequestParam(value = "text") String text) {
         log.info("Получение товаров по запросу - " + text);
         List<ItemDto> dtoList = service.getByName(userId, text);

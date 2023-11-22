@@ -6,7 +6,7 @@ import ru.practicum.shareit.exception.model.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepo;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +17,7 @@ import static ru.practicum.shareit.user.mapper.UserMapper.mapToModel;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserRepo repository;
+    private final UserRepository repository;
 
     @Override
     public UserDto saveUser(UserDto user) {
@@ -27,10 +27,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(int id, UserDto user) {
-        User userUpdate = mapToModel(user);
-        userUpdate.setId(id);
-        return mapToDto(repository.updateUser(userUpdate));
+    public UserDto updateUser(int id, UserDto userDto) {
+        return mapToDto(repository.updateUser(id, mapToModel(userDto)));
     }
 
     @Override

@@ -17,6 +17,7 @@ public class UserMapper {
 
     public static User mapToModel(UserDto user) {
         return User.builder()
+                .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .build();

@@ -5,7 +5,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepo {
+public interface UserRepository {
     void saveUser(User user);
 
     Optional<User> getById(int id);
@@ -14,5 +14,5 @@ public interface UserRepo {
 
     List<User> getAll();
 
-    User updateUser(User user);
+    User updateUser(int id, User user);
 }

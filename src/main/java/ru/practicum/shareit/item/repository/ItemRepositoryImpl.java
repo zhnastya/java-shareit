@@ -8,21 +8,33 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
-public class ItemRepoImpl implements ItemRepo {
+public class ItemRepositoryImpl implements ItemRepository {
     private final Map<Integer, Item> items = new HashMap<>();
+    private final Map<Integer, Map<Integer, Item>> userItems = new HashMap<>();
     private int id = 1;
+
+    private void updateUserMap() {
+        items.forEach((k, v) -> {
+            Map<Integer, Item> itemMap = userItems.containsKey(v.getOwner().getId())
+                    ? userItems.get(v.getOwner().getId())
+                    : new HashMap<>();
+            itemMap.put(k, v);
+            userItems.put(v.getOwner().getId(), itemMap);
+        });
+    }
 
     @Override
     public void saveItem(Item item) {
         int newId = id++;
         item.setId(newId);
         items.put(newId, item);
+        updateUserMap();
     }
 
     @Override
     public Item updateItem(Item item) {
         Item item1 = items.get(item.getId());
-        if (item1 == null || item1.getOwner().getId() != item.getOwner().getId()) {
+        if (item1 == null || !item1.getOwner().getId().equals(item.getOwner().getId())) {
             throw new NotFoundException("Товар не найден");
         }
         if (item.getAvailable() != null) {
@@ -34,6 +46,7 @@ public class ItemRepoImpl implements ItemRepo {
         if (item.getDescription() != null) {
             item1.setDescription(item.getDescription());
         }
+        updateUserMap();
         return item1;
     }
 
@@ -45,9 +58,8 @@ public class ItemRepoImpl implements ItemRepo {
 
     @Override
     public List<Item> findByOwnerId(int userId) {
-        return items.values().stream()
-                .filter(x -> x.getOwner().getId() == userId)
-                .collect(Collectors.toList());
+        if (!userItems.containsKey(userId)) return new ArrayList<>();
+        return new ArrayList<>(userItems.get(userId).values());
     }
 
     @Override

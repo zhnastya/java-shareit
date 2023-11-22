@@ -19,7 +19,7 @@ public class ItemMapper {
 
     public static Item mapperToModel(User user, ItemDto item) {
         return Item.builder()
-                .id(item.getId() != null ? item.getId() : 0)
+                .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())

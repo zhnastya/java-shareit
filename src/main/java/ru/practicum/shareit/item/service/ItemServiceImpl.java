@@ -7,9 +7,9 @@ import ru.practicum.shareit.exception.model.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepo;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepoImpl;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,8 +20,8 @@ import static ru.practicum.shareit.item.mapper.ItemMapper.mapperToModel;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private final UserRepoImpl userRepository;
-    private final ItemRepo repository;
+    private final UserRepository userRepository;
+    private final ItemRepository repository;
 
     @Override
     public ItemDto createItem(int userId, ItemDto item) {
