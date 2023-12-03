@@ -8,7 +8,9 @@ import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.user.mapper.UserMapper.mapToDto;
@@ -22,32 +24,49 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto saveUser(UserDto user) {
         User user1 = mapToModel(user);
-        repository.saveUser(user1);
+        repository.save(user1);
         return mapToDto(user1);
     }
 
     @Override
     public UserDto updateUser(int id, UserDto userDto) {
-        return mapToDto(repository.updateUser(id, mapToModel(userDto)));
+        try {
+            User user = repository.getById(id);
+            if (userDto.getEmail() != null) user.setEmail(userDto.getEmail());
+            if (userDto.getName() != null) user.setName(userDto.getName());
+            repository.save(user);
+            return mapToDto(user);
+        } catch (EntityNotFoundException e) {
+            throw new NotFoundException("Пользователь не найден");
+        }
     }
 
     @Override
     public UserDto getById(int id) {
-        User userFromMap = repository.getById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        return mapToDto(userFromMap);
+        try {
+            return mapToDto(repository.getById(id));
+        } catch (EntityNotFoundException e) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+    }
+
+    @Override
+    public Optional<User> getByIdModel(int id) {
+        return repository.findById(id);
     }
 
     @Override
     public void deleteUser(int id) {
-        repository.getById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        repository.deleteUser(id);
+        try {
+            repository.deleteById(id);
+        } catch (EntityNotFoundException e) {
+            throw new NotFoundException("Пользователь не найден");
+        }
     }
 
     @Override
     public List<UserDto> getAll() {
-        return repository.getAll().stream()
+        return repository.findAll().stream()
                 .map(UserMapper::mapToDto)
                 .collect(Collectors.toList());
     }
