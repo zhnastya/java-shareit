@@ -57,6 +57,7 @@ public class ItemMapper {
                 .available(item.getAvailable())
                 .build();
     }
+
     public static BookingDtoForItem bookingDtoForItem(Booking booking) {
         if (booking == null) {
             return null;
