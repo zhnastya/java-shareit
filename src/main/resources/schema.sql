@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS items
     name         VARCHAR(100),
     description  VARCHAR(250),
     available BOOLEAN,
-    owner_id     BIGINT
+    owner_id BIGINT,
+    FOREIGN KEY(owner_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS bookings
@@ -28,7 +29,9 @@ CREATE TABLE IF NOT EXISTS bookings
     item_id    BIGINT,
     booker_id  BIGINT,
     status     VARCHAR(15),
-    time_of_created TIMESTAMP WITHOUT TIME ZONE
+    time_of_created TIMESTAMP WITHOUT TIME ZONE,
+    FOREIGN KEY(item_id) REFERENCES items(id),
+    FOREIGN KEY(booker_id) REFERENCES users(id)
 );
 CREATE TABLE IF NOT EXISTS comments
 (
@@ -36,5 +39,7 @@ CREATE TABLE IF NOT EXISTS comments
     text      VARCHAR(250),
     item_id   BIGINT,
     author_id BIGINT,
-    time_of_created TIMESTAMP WITHOUT TIME ZONE
+    time_of_created TIMESTAMP WITHOUT TIME ZONE,
+    FOREIGN KEY(item_id) REFERENCES items(id),
+    FOREIGN KEY(author_id) REFERENCES users(id)
 );

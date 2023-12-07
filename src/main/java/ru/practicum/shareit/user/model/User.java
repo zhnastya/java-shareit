@@ -1,9 +1,6 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -14,7 +11,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,13 +23,13 @@ public class User {
     private String name;
     @Column(name = "email", unique = true)
     private String email;
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL,
+    @OneToMany(fetch = FetchType.LAZY,
             mappedBy = "owner")
     private List<Item> items = new ArrayList<>();
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL,
+    @OneToMany(fetch = FetchType.LAZY,
             mappedBy = "booker")
     private List<Booking> bookings = new ArrayList<>();
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL,
+    @OneToMany(fetch = FetchType.LAZY,
             mappedBy = "author")
     private List<Comment> comments;
 

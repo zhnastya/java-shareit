@@ -3,8 +3,9 @@ package ru.practicum.shareit.booking.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingInDto;
-import ru.practicum.shareit.booking.dto.BookingOutDto;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
@@ -18,49 +19,49 @@ public class BookingController {
     private final BookingService service;
 
     @PostMapping
-    public BookingOutDto saveBooking(@RequestHeader("X-Sharer-User-Id") int bookerId,
-                                     @Valid @RequestBody BookingInDto dto) {
+    public BookingDto saveBooking(@RequestHeader("X-Sharer-User-Id") int bookerId,
+                                  @Valid @RequestBody BookingRequestDto dto) {
         log.info("Запрос на создание бронирования пользователем - " + bookerId);
-        BookingOutDto bookingOutDto = service.saveBooking(bookerId, dto);
-        log.info("Бронирование сохранено, id - " + bookingOutDto.getId());
-        return bookingOutDto;
+        BookingDto bookingDto = service.saveBooking(bookerId, dto);
+        log.info("Бронирование сохранено, id - " + bookingDto.getId());
+        return bookingDto;
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingOutDto updateStatus(@RequestHeader("X-Sharer-User-Id") int ownerId,
-                                      @PathVariable int bookingId,
-                                      @RequestParam boolean approved) {
+    public BookingDto updateStatus(@RequestHeader("X-Sharer-User-Id") int ownerId,
+                                   @PathVariable int bookingId,
+                                   @RequestParam boolean approved) {
         log.info("Запрос на обновление бронирования " + bookingId + " пользователем - " + ownerId);
-        BookingOutDto bookingOutDto = service.updateStatus(bookingId, ownerId, approved);
+        BookingDto bookingDto = service.updateStatus(bookingId, ownerId, approved);
         log.info("Статус бронирования обновлен - " + bookingId + " пользователем - " + ownerId);
-        return bookingOutDto;
+        return bookingDto;
     }
 
     @GetMapping("/{bookingId}")
-    public BookingOutDto getBooking(@RequestHeader("X-Sharer-User-Id") int userId,
-                                    @PathVariable int bookingId) {
+    public BookingDto getBooking(@RequestHeader("X-Sharer-User-Id") int userId,
+                                 @PathVariable int bookingId) {
         log.info("Запрос на просмотр бронирования - " + bookingId + " пользователем - " + userId);
-        BookingOutDto bookingOutDto = service.getBooking(userId, bookingId);
+        BookingDto bookingDto = service.getBooking(userId, bookingId);
         log.info("Бронирование - " + bookingId + " отправлено - ");
-        return bookingOutDto;
+        return bookingDto;
     }
 
     @GetMapping
-    public List<BookingOutDto> getSorted(@RequestHeader("X-Sharer-User-Id") int userId,
-                                         @RequestParam(name = "state", required = false,
-                                                 defaultValue = "ALL") String state) {
+    public List<BookingDto> getSorted(@RequestHeader("X-Sharer-User-Id") int userId,
+                                      @RequestParam(name = "state", required = false,
+                                              defaultValue = "ALL") Status state) {
         log.info("Запрос на просмотр бронирований со статусом - " + state);
-        List<BookingOutDto> list = service.getSorted(userId, state);
+        List<BookingDto> list = service.getSorted(userId, state);
         log.info("Отправлен список бронирований со статусом - " + state);
         return list;
     }
 
     @GetMapping("/owner")
-    public List<BookingOutDto> getByOwner(@RequestHeader("X-Sharer-User-Id") int userId,
-                                          @RequestParam(name = "state", required = false,
-                                                  defaultValue = "ALL") String state) {
+    public List<BookingDto> getByOwner(@RequestHeader("X-Sharer-User-Id") int userId,
+                                       @RequestParam(name = "state", required = false,
+                                               defaultValue = "ALL") Status state) {
         log.info("Запрос на просмотр бронирований владельцем со статусом - " + state);
-        List<BookingOutDto> list = service.getSortedByOwner(userId, state);
+        List<BookingDto> list = service.getSortedByOwner(userId, state);
         log.info("Отправлен список бронирований владельца - " + userId + " со статусом - " + state);
         return list;
     }

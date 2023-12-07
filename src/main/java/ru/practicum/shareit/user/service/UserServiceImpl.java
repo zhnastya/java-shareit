@@ -2,15 +2,14 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.model.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.user.mapper.UserMapper.mapToDto;
@@ -21,6 +20,7 @@ import static ru.practicum.shareit.user.mapper.UserMapper.mapToModel;
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
 
+    @Transactional
     @Override
     public UserDto saveUser(UserDto user) {
         User user1 = mapToModel(user);
@@ -28,40 +28,27 @@ public class UserServiceImpl implements UserService {
         return mapToDto(user1);
     }
 
+    @Transactional
     @Override
     public UserDto updateUser(int id, UserDto userDto) {
-        try {
-            User user = repository.getById(id);
-            if (userDto.getEmail() != null) user.setEmail(userDto.getEmail());
-            if (userDto.getName() != null) user.setName(userDto.getName());
-            repository.save(user);
-            return mapToDto(user);
-        } catch (EntityNotFoundException e) {
-            throw new NotFoundException("Пользователь не найден");
-        }
+        User user = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь id - " + id + " не найден"));
+        if (userDto.getEmail() != null) user.setEmail(userDto.getEmail());
+        if (userDto.getName() != null) user.setName(userDto.getName());
+        return mapToDto(user);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDto getById(int id) {
-        try {
-            return mapToDto(repository.getById(id));
-        } catch (EntityNotFoundException e) {
-            throw new NotFoundException("Пользователь не найден");
-        }
+        return mapToDto(repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь id - " + id + " не найден")));
     }
 
-    @Override
-    public Optional<User> getByIdModel(int id) {
-        return repository.findById(id);
-    }
-
+    @Transactional
     @Override
     public void deleteUser(int id) {
-        try {
-            repository.deleteById(id);
-        } catch (EntityNotFoundException e) {
-            throw new NotFoundException("Пользователь не найден");
-        }
+        repository.deleteById(id);
     }
 
     @Override

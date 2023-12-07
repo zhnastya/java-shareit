@@ -2,10 +2,9 @@ package ru.practicum.shareit.item.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.enums.Status;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoForBooking;
+import ru.practicum.shareit.item.dto.BookingDtoForItem;
+import ru.practicum.shareit.item.dto.ItemFullDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 @Component
 public class ItemMapper {
 
-    public static ItemDto mapperToDto(int userId, Item item) {
+    public static ItemFullDto mapperToDto(int userId, Item item) {
         LocalDateTime dateTime = LocalDateTime.now();
         Booking last = null;
         Booking next = null;
@@ -35,13 +34,13 @@ public class ItemMapper {
                     .orElse(null);
         }
 
-        return ItemDto.builder()
+        return ItemFullDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .lastBooking(BookingMapper.mapperForItem(last))
-                .nextBooking(BookingMapper.mapperForItem(next))
+                .lastBooking(bookingDtoForItem(last))
+                .nextBooking(bookingDtoForItem(next))
                 .comments(item.getComments() == null
                         ? new ArrayList<>()
                         : item.getComments().stream()
@@ -50,7 +49,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public static Item mapperToModel(ItemDto item) {
+    public static Item mapperToModel(ItemFullDto item) {
         return Item.builder()
                 .id(item.getId())
                 .name(item.getName())
@@ -58,13 +57,16 @@ public class ItemMapper {
                 .available(item.getAvailable())
                 .build();
     }
-
-    public static ItemDtoForBooking mapperForBooking(Item item) {
-        return ItemDtoForBooking.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .available(item.getAvailable())
-                .description(item.getDescription())
+    public static BookingDtoForItem bookingDtoForItem(Booking booking) {
+        if (booking == null) {
+            return null;
+        }
+        return BookingDtoForItem.builder()
+                .id(booking.getId())
+                .bookerId(booking.getBooker().getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .status(booking.getStatus())
                 .build();
     }
 }

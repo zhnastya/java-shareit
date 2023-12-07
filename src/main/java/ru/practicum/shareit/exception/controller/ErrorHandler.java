@@ -7,6 +7,7 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.practicum.shareit.booking.exeptions.BookingException;
 import ru.practicum.shareit.exception.model.ConflictException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
@@ -94,10 +95,8 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowableUnsupported(final UnsupportedOperationException e) {
+    public ErrorResponse handleThrowableUnsupported(final MethodArgumentTypeMismatchException e) {
         log.error(e.getMessage());
-        return new ErrorResponse(
-                e.getMessage()
-        );
+        return new ErrorResponse("Unknown state: " + e.getValue());
     }
 }

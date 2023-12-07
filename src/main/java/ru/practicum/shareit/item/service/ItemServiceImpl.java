@@ -6,22 +6,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.enums.Status;
 import ru.practicum.shareit.booking.exeptions.BookingException;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.model.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemFullDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.item.mapper.ItemMapper.mapperToDto;
@@ -30,13 +30,15 @@ import static ru.practicum.shareit.item.mapper.ItemMapper.mapperToModel;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final ItemRepository repository;
     private final CommentRepository commentRepository;
+    private final BookingRepository bookingRepository;
 
     @Override
-    public ItemDto createItem(int userId, ItemDto item) {
-        User user = userService.getByIdModel(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+    public ItemFullDto createItem(int userId, ItemFullDto item) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь id - " + userId + " не найден"));
         Item item1 = mapperToModel(item);
         item1.setOwner(user);
         item1.setBookings(new ArrayList<>());
@@ -47,72 +49,61 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public CommentDto saveComment(int userId, int itemId, CommentDto commentDto) {
-        User user = userService.getByIdModel(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        try {
-            Item item = repository.getReferenceById(itemId);
-            if (item.getOwner().equals(user)) {
-                throw new NotFoundException("Пользователь - " + userId + " не может оставлять комментарии на вещь - " + itemId);
-            }
-            if (!item.getBookings().isEmpty() && !repository.findCustomStoryBookers(itemId, LocalDateTime.now(),
-                    Status.APPROVED).contains(user)) {
-                throw new BookingException("У пользователя id - " + userId + " нет завершенных бронирований");
-            }
-            Comment comment = commentRepository.save(CommentMapper.dtoToComment(commentDto));
-            item.saveComments(comment);
-            user.saveComment(comment);
-            return CommentMapper.commentToDto(comment);
-        } catch (EntityNotFoundException e) {
-            throw new NotFoundException("Вещь с id - " + itemId + "не найдена");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь id - " + userId + " не найден"));
+        Item item = repository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Вещь с id - " + itemId + "не найдена"));
+        List<Booking> bookings = bookingRepository.findAllByBookerAndItemAndStatus(user, item, Status.APPROVED, LocalDateTime.now());
+        if (bookings.isEmpty()) {
+            throw new BookingException("У пользователя id - " + userId + " нет завершенных бронирований");
         }
+        Comment comment = commentRepository.save(CommentMapper.dtoToComment(commentDto));
+        item.saveComment(comment);
+        user.saveComment(comment);
+        return CommentMapper.commentToDto(comment);
     }
 
     @Transactional
     @Override
-    public ItemDto updateItem(int userId, int id, ItemDto item) {
-        User owner = userService.getByIdModel(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        try {
-            Item itemUpdate = repository.getReferenceById(id);
-            if (itemUpdate.getOwner() != owner) {
-                throw new NotFoundException("Пользователь - " + userId + "не является владельцем вещи - " + id);
-            }
-            if (item.getAvailable() != null) itemUpdate.setAvailable(item.getAvailable());
-            if (item.getDescription() != null) itemUpdate.setDescription(item.getDescription());
-            if (item.getName() != null) itemUpdate.setName(item.getName());
-            return mapperToDto(userId, itemUpdate);
-
-        } catch (EntityNotFoundException e) {
-            throw new NotFoundException("Вещь с id - " + id + "не найдена");
+    public ItemFullDto updateItem(int userId, int id, ItemFullDto item) {
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь id - " + userId + " не найден"));
+        Item itemUpdate = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Вещь с id - " + id + "не найдена"));
+        if (itemUpdate.getOwner() != owner) {
+            throw new NotFoundException("Пользователь - " + userId + "не является владельцем вещи - " + id);
         }
+        if (item.getAvailable() != null) itemUpdate.setAvailable(item.getAvailable());
+        if (item.getDescription() != null) itemUpdate.setDescription(item.getDescription());
+        if (item.getName() != null) itemUpdate.setName(item.getName());
+        return mapperToDto(userId, itemUpdate);
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public ItemDto getByItemId(int userId, int id) {
-        try {
-            return mapperToDto(userId, repository.getReferenceById(id));
-        } catch (EntityNotFoundException e) {
-            throw new NotFoundException("Вещь с id - " + id + "не найдена");
-        }
+    public ItemFullDto getByItemId(int userId, int id) {
+        return mapperToDto(userId, repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Вещь с id - " + id + "не найдена")));
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<ItemDto> getAllByUser(int userId) {
-        userService.getById(userId);
+    public List<ItemFullDto> getAllByUser(int userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь id - " + userId + " не найден"));
         return repository.findByOwnerIdOrderById(userId).stream()
                 .map(x -> mapperToDto(userId, x))
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<ItemDto> getByName(int userId, String name) {
-        userService.getById(userId);
+    public List<ItemFullDto> getByName(int userId, String name) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь id - " + userId + " не найден"));
         if (name.isEmpty()) return new ArrayList<>();
         return repository.findItemByAvailableAndQueryContainWithIgnoreCase(name).stream()
                 .map(x -> mapperToDto(userId, x))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<Item> getItemForBooking(int id) {
-        return repository.findById(id);
     }
 }
