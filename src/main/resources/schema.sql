@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS comments
 (
     id        BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     text      VARCHAR(250),
-    item_id   BIGINT NOT NULL,
-    author_id BIGINT NOT NULL,
+    item_id   BIGINT,
+    author_id BIGINT,
     time_of_created TIMESTAMP WITHOUT TIME ZONE,
     FOREIGN KEY(item_id) REFERENCES items(id),
     FOREIGN KEY(author_id) REFERENCES users(id)
