@@ -69,34 +69,34 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public BookingDto updateStatus(int bookingId, int ownerId, boolean approved) {
-            Booking booking = repository.findById(bookingId).orElseThrow(()->new NotFoundException("Бронирование не найдено, id - " + bookingId));
+        Booking booking = repository.findById(bookingId).orElseThrow(() -> new NotFoundException("Бронирование не найдено, id - " + bookingId));
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id - " + ownerId + " не найден"));
         if (repository.findCustomByOwnerAndBookingId(owner, bookingId).isEmpty()) {
-                throw new NotFoundException("Пользователь - " + owner + " не является владельцем вещи");
-            }
-            if (booking.getStatus().equals(Status.APPROVED)) {
-                throw new BookingException("Статус уже подтвержден");
-            }
-            if (approved) {
-                booking.setStatus(Status.APPROVED);
-            } else {
-                booking.setStatus(Status.REJECTED);
-            }
-            return bookingToDto(booking);
+            throw new NotFoundException("Пользователь - " + owner + " не является владельцем вещи");
+        }
+        if (booking.getStatus().equals(Status.APPROVED)) {
+            throw new BookingException("Статус уже подтвержден");
+        }
+        if (approved) {
+            booking.setStatus(Status.APPROVED);
+        } else {
+            booking.setStatus(Status.REJECTED);
+        }
+        return bookingToDto(booking);
     }
 
     @Transactional(readOnly = true)
     @Override
     public BookingDto getBooking(int userId, int bookingId) {
-            Booking booking = repository.findById(bookingId)
-                    .orElseThrow(()->new NotFoundException("Бронирование не найдено, id - " + bookingId));
+        Booking booking = repository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Бронирование не найдено, id - " + bookingId));
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id - " + userId + " не найден"));
-            if (repository.findCustomAnyUserAndBookingId(owner, bookingId).isEmpty()) {
-                throw new NotFoundException("Пользователь - " + userId + " не имеет доступ к бронированию");
-            }
-            return bookingToDto(booking);
+        if (repository.findCustomAnyUserAndBookingId(owner, bookingId).isEmpty()) {
+            throw new NotFoundException("Пользователь - " + userId + " не имеет доступ к бронированию");
+        }
+        return bookingToDto(booking);
     }
 
     @Transactional(readOnly = true)
@@ -105,7 +105,7 @@ public class BookingServiceImpl implements BookingService {
         User booker = userRepository.findById(bookerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id - " + bookerId + " не найден"));
         Sort sort = Sort.by(Sort.Direction.DESC, "timeOfCreated");
-        List<Booking> bookings=new ArrayList<>();
+        List<Booking> bookings = new ArrayList<>();
         switch (state.name()) {
             case "ALL":
                 bookings = repository.findAllByBooker(booker, sort);
@@ -137,7 +137,7 @@ public class BookingServiceImpl implements BookingService {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id - " + ownerId + " не найден"));
         Sort sort = Sort.by(Sort.Direction.DESC, "timeOfCreated");
-        List<Booking> bookings=new ArrayList<>();
+        List<Booking> bookings = new ArrayList<>();
         switch (state.name()) {
             case "ALL":
                 bookings = repository.findCustomAllOwner(owner, sort);

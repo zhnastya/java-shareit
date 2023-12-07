@@ -16,6 +16,7 @@ import java.util.Optional;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findAllByBooker(User booker, Sort sort);
+
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
             "WHERE " +
@@ -23,6 +24,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND b.item.owner = :owner "
     )
     Optional<Booking> findCustomByOwnerAndBookingId(User owner, int bookingId);
+
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
             "WHERE " +
