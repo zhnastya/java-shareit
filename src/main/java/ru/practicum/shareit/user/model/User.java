@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.model;
 import lombok.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.item.model.Item;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -23,9 +22,6 @@ public class User {
     private String name;
     @Column(name = "email", unique = true)
     private String email;
-    @OneToMany(fetch = FetchType.LAZY,
-            mappedBy = "owner")
-    private List<Item> items = new ArrayList<>();
     @OneToMany(fetch = FetchType.LAZY,
             mappedBy = "booker")
     private List<Booking> bookings = new ArrayList<>();
