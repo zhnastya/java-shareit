@@ -5,7 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.enums.Status;
+import ru.practicum.shareit.booking.enums.SortField;
+import ru.practicum.shareit.booking.exeptions.BookingException;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
@@ -49,20 +50,28 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getSorted(@RequestHeader("X-Sharer-User-Id") int userId,
                                       @RequestParam(name = "state", required = false,
-                                              defaultValue = "ALL") Status state) {
-        log.info("Запрос на просмотр бронирований со статусом - " + state);
-        List<BookingDto> list = service.getSorted(userId, state);
-        log.info("Отправлен список бронирований со статусом - " + state);
-        return list;
+                                              defaultValue = "ALL") String field) {
+        log.info("Запрос на просмотр бронирований со статусом - " + field);
+        try {
+            List<BookingDto> list = service.getSorted(userId, SortField.valueOf(field));
+            log.info("Отправлен список бронирований со статусом - " + field);
+            return list;
+        } catch (IllegalArgumentException e) {
+            throw new BookingException("Unknown state: " + field);
+        }
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getByOwner(@RequestHeader("X-Sharer-User-Id") int userId,
                                        @RequestParam(name = "state", required = false,
-                                               defaultValue = "ALL") Status state) {
-        log.info("Запрос на просмотр бронирований владельцем со статусом - " + state);
-        List<BookingDto> list = service.getSortedByOwner(userId, state);
-        log.info("Отправлен список бронирований владельца - " + userId + " со статусом - " + state);
-        return list;
+                                               defaultValue = "ALL") String field) {
+        log.info("Запрос на просмотр бронирований владельцем со статусом - " + field);
+        try {
+            List<BookingDto> list = service.getSortedByOwner(userId, SortField.valueOf(field));
+            log.info("Отправлен список бронирований владельца - " + userId + " со статусом - " + field);
+            return list;
+        } catch (IllegalArgumentException e) {
+            throw new BookingException("Unknown state: " + field);
+        }
     }
 }

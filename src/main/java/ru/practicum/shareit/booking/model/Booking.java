@@ -31,17 +31,10 @@ public class Booking {
     private User booker;
     @Enumerated(EnumType.STRING)
     private Status status;
-    private LocalDateTime timeOfCreated;
-
-    @PrePersist
-    private void init() {
-        timeOfCreated = LocalDateTime.now();
-    }
 
     public void saveBookerItem(User booker, Item item) {
         this.booker = booker;
         this.item = item;
         booker.saveBooking(this);
-        item.saveBooking(this);
     }
 }

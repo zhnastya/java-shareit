@@ -17,6 +17,8 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findAllByBooker(User booker, Sort sort);
 
+    List<Booking> findAllByItem_Id(Integer id);
+
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
             "WHERE " +
@@ -52,16 +54,17 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "FROM Booking as b " +
             "WHERE " +
             "b.booker = :booker " +
-            "AND :time BETWEEN b.start and b.end "
+            "AND :time BETWEEN b.start and b.end " +
+            "order by b.start desc"
     )
-    List<Booking> findCustomByCurrent(User booker, LocalDateTime time);
+    List<Booking> findCustomByCurrent(User booker, LocalDateTime time, Sort sort);
 
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
             "WHERE " +
             "b.booker = :booker " +
             "AND :time > b.end " +
-            "order by b.timeOfCreated desc "
+            "order by b.start desc"
     )
     List<Booking> findCustomByPast(User booker, LocalDateTime time, Sort sort);
 
@@ -70,7 +73,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "WHERE " +
             "b.booker = :booker " +
             "AND :time < b.start " +
-            "order by b.timeOfCreated desc "
+            "order by b.start desc"
     )
     List<Booking> findCustomByFuture(User booker, LocalDateTime time, Sort sort);
 
@@ -79,7 +82,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "WHERE " +
             "b.item.owner = :owner " +
             "AND :time BETWEEN b.start and b.end " +
-            "order by b.timeOfCreated desc "
+            "order by b.start desc"
     )
     List<Booking> findCustomByCurrentOwner(User owner, LocalDateTime time, Sort sort);
 
@@ -88,7 +91,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "WHERE " +
             "b.item.owner = :owner " +
             "AND :time > b.end " +
-            "order by b.timeOfCreated desc "
+            "order by b.start desc"
     )
     List<Booking> findCustomByPastOwner(User owner, LocalDateTime time, Sort sort);
 
@@ -97,7 +100,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "WHERE " +
             "b.item.owner = :owner " +
             "AND :time < b.start " +
-            "order by b.timeOfCreated desc "
+            "order by b.start desc"
     )
     List<Booking> findCustomByFutureOwner(User owner, LocalDateTime time, Sort sort);
 
@@ -106,7 +109,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "WHERE " +
             "b.item.owner = :owner " +
             "AND b.status = :status " +
-            "order by b.timeOfCreated desc "
+            "order by b.start desc "
     )
     List<Booking> findCustomByStatusOwner(User owner, Status status, Sort sort);
 
@@ -114,7 +117,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "FROM Booking as b " +
             "WHERE " +
             "b.item.owner = :owner " +
-            "order by b.timeOfCreated desc "
+            "order by b.start DESC "
     )
     List<Booking> findCustomAllOwner(User owner, Sort sort);
 }

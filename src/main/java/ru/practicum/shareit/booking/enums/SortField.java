@@ -1,8 +1,11 @@
 package ru.practicum.shareit.booking.enums;
 
-public enum Status {
+public enum SortField {
     WAITING,
     APPROVED,
     REJECTED,
-    CANCELED
+    PAST,
+    CURRENT,
+    FUTURE,
+    ALL
 }

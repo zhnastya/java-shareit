@@ -1,5 +1,4 @@
 
-
 CREATE TABLE IF NOT EXISTS users
 (
     id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -26,7 +25,6 @@ CREATE TABLE IF NOT EXISTS bookings
     item_id    BIGINT NOT NULL,
     booker_id  BIGINT NOT NULL,
     status     VARCHAR(15) NOT NULL,
-    time_of_created TIMESTAMP WITHOUT TIME ZONE,
     FOREIGN KEY(item_id) REFERENCES items(id),
     FOREIGN KEY(booker_id) REFERENCES users(id)
 );
