@@ -52,13 +52,11 @@ public class BookingController {
                                       @RequestParam(name = "state", required = false,
                                               defaultValue = "ALL") String field) {
         log.info("Запрос на просмотр бронирований со статусом - " + field);
-        try {
-            List<BookingDto> list = service.getSorted(userId, SortField.valueOf(field));
-            log.info("Отправлен список бронирований со статусом - " + field);
-            return list;
-        } catch (IllegalArgumentException e) {
-            throw new BookingException("Unknown state: " + field);
-        }
+        SortField state = SortField.from(field)
+                .orElseThrow(() -> new BookingException("Unknown state: " + field));
+        List<BookingDto> list = service.getSorted(userId, state);
+        log.info("Отправлен список бронирований со статусом - " + field);
+        return list;
     }
 
     @GetMapping("/owner")
@@ -66,12 +64,10 @@ public class BookingController {
                                        @RequestParam(name = "state", required = false,
                                                defaultValue = "ALL") String field) {
         log.info("Запрос на просмотр бронирований владельцем со статусом - " + field);
-        try {
-            List<BookingDto> list = service.getSortedByOwner(userId, SortField.valueOf(field));
-            log.info("Отправлен список бронирований владельца - " + userId + " со статусом - " + field);
-            return list;
-        } catch (IllegalArgumentException e) {
-            throw new BookingException("Unknown state: " + field);
-        }
+        SortField state = SortField.from(field)
+                .orElseThrow(() -> new BookingException("Unknown state: " + field));
+        List<BookingDto> list = service.getSortedByOwner(userId, state);
+        log.info("Отправлен список бронирований владельца - " + userId + " со статусом - " + field);
+        return list;
     }
 }
