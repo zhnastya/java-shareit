@@ -11,7 +11,6 @@ public class ErrorResponse {
         this.error = error;
     }
 
-
     public ErrorResponse(String error, String stackTrace) {
         this.error = error;
         this.stackTrace = stackTrace;

@@ -7,6 +7,7 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.booking.exeptions.BookingException;
 import ru.practicum.shareit.exception.model.ConflictException;
 import ru.practicum.shareit.exception.model.ErrorResponse;
 import ru.practicum.shareit.exception.model.NotFoundException;
@@ -62,6 +63,15 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingException(final MissingRequestHeaderException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse bookingException(final BookingException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
                 e.getMessage()

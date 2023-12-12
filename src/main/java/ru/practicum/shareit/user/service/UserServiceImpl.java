@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.model.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -19,35 +20,40 @@ import static ru.practicum.shareit.user.mapper.UserMapper.mapToModel;
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
 
+    @Transactional
     @Override
     public UserDto saveUser(UserDto user) {
         User user1 = mapToModel(user);
-        repository.saveUser(user1);
+        repository.save(user1);
         return mapToDto(user1);
     }
 
+    @Transactional
     @Override
     public UserDto updateUser(int id, UserDto userDto) {
-        return mapToDto(repository.updateUser(id, mapToModel(userDto)));
+        User user = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь id - " + id + " не найден"));
+        if (userDto.getEmail() != null) user.setEmail(userDto.getEmail());
+        if (userDto.getName() != null) user.setName(userDto.getName());
+        return mapToDto(user);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDto getById(int id) {
-        User userFromMap = repository.getById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        return mapToDto(userFromMap);
+        return mapToDto(repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь id - " + id + " не найден")));
     }
 
+    @Transactional
     @Override
     public void deleteUser(int id) {
-        repository.getById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        repository.deleteUser(id);
+        repository.deleteById(id);
     }
 
     @Override
     public List<UserDto> getAll() {
-        return repository.getAll().stream()
+        return repository.findAll().stream()
                 .map(UserMapper::mapToDto)
                 .collect(Collectors.toList());
     }
