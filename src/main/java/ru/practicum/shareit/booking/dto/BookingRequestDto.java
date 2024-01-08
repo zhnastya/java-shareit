@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingRequestDto {
+    private Integer id;
     @FutureOrPresent(message = "дата старта должна быть в будущем")
     private LocalDateTime start;
     @Future(message = "дата окончания не может быть в прошлом")

@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ItemFullDto {
+    private Integer requestId;
     private Integer id;
     @NotBlank
     private String name;

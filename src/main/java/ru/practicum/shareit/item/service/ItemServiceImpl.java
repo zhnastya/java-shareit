@@ -12,10 +12,13 @@ import ru.practicum.shareit.exception.model.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemFullDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -34,6 +37,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository repository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
+    private final RequestRepository requestRepository;
 
     private ItemFullDto setBookings(int userId, ItemFullDto dto) {
         Item item = repository.findById(dto.getId())
@@ -59,14 +63,20 @@ public class ItemServiceImpl implements ItemService {
         return dto;
     }
 
+    @Transactional
     @Override
     public ItemFullDto createItem(int userId, ItemFullDto item) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id - " + userId + " не найден"));
         Item item1 = mapperToModel(item);
+        if (item.getRequestId() != null) {
+            ItemRequest request = requestRepository.findById(item.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Запрос с id - " + item.getRequestId() + " не найден"));
+            item1.setRequest(request);
+        }
         item1.setOwner(user);
         repository.save(item1);
-        return mapperToDto(userId, item1);
+        return mapperToDto(item1);
     }
 
     @Transactional
@@ -99,7 +109,7 @@ public class ItemServiceImpl implements ItemService {
         if (item.getAvailable() != null) itemUpdate.setAvailable(item.getAvailable());
         if (item.getDescription() != null) itemUpdate.setDescription(item.getDescription());
         if (item.getName() != null) itemUpdate.setName(item.getName());
-        ItemFullDto dto = mapperToDto(userId, itemUpdate);
+        ItemFullDto dto = mapperToDto(itemUpdate);
         dto.setComments(commentRepository.findAllByItem_Id(id).stream()
                 .map(CommentMapper::commentToDto)
                 .collect(Collectors.toList()));
@@ -109,7 +119,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     @Override
     public ItemFullDto getByItemId(int userId, int id) {
-        ItemFullDto dto = mapperToDto(userId, repository.findById(id)
+        ItemFullDto dto = mapperToDto(repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь с id - " + id + "не найдена")));
         dto.setComments(commentRepository.findAllByItem_Id(id).stream()
                 .map(CommentMapper::commentToDto)
@@ -123,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id - " + userId + " не найден"));
         return repository.findByOwnerIdOrderById(userId).stream()
-                .map(x -> mapperToDto(userId, x))
+                .map(ItemMapper::mapperToDto)
                 .peek(x -> {
                     x.setComments(commentRepository.findAllByItem_Id(x.getId()).stream()
                             .map(CommentMapper::commentToDto)
@@ -140,7 +150,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Пользователь id - " + userId + " не найден"));
         if (name.isEmpty()) return new ArrayList<>();
         return repository.findItemByAvailableAndQueryContainWithIgnoreCase(name).stream()
-                .map(x -> mapperToDto(userId, x))
+                .map(ItemMapper::mapperToDto)
                 .peek(x -> {
                     x.setComments(commentRepository.findAllByItem_Id(x.getId()).stream()
                             .map(CommentMapper::commentToDto)
