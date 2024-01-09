@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.exeptions.BookingException;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.model.NotFoundException;
+import ru.practicum.shareit.item.dto.BookingDtoForItem;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemFullDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -135,6 +136,52 @@ class ItemServiceImplTest {
         assertEquals(itemDto, actualItemDto);
     }
 
+    @Test
+    void getAllByUser() {
+        Item itemTest = Item.builder()
+                .id(1)
+                .owner(user2)
+                .name("test item name")
+                .description("test description")
+                .available(true)
+                .build();
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(itemRepository.findByOwnerIdOrderById(any(Integer.class))).thenReturn(List.of(itemTest));
+        when(commentRepository.findAllByItem_Id(anyInt())).thenReturn(List.of(comment));
+        when(itemRepository.findById(anyInt())).thenReturn(Optional.of(itemTest));
+
+        List<ItemFullDto> actualItemDtos = itemService.getAllByUser(user.getId());
+
+        assertEquals(actualItemDtos.size(), 1);
+        assertEquals(itemTest.getId(), actualItemDtos.get(0).getId());
+        assertEquals(itemTest.getName(), actualItemDtos.get(0).getName());
+        assertEquals(itemTest.getDescription(), actualItemDtos.get(0).getDescription());
+    }
+
+    @Test
+    void getByName() {
+        Item itemTest = Item.builder()
+                .id(1)
+                .owner(user2)
+                .name("test item name")
+                .description("test description")
+                .available(true)
+                .build();
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(itemRepository.findItemByAvailableAndQueryContainWithIgnoreCase(any(String.class))).thenReturn(List.of(itemTest));
+        when(commentRepository.findAllByItem_Id(anyInt())).thenReturn(List.of(comment));
+        when(itemRepository.findById(anyInt())).thenReturn(Optional.of(itemTest));
+
+        List<ItemFullDto> actualItemDtos = itemService.getByName(user.getId(), "name");
+
+        assertEquals(1, actualItemDtos.size());
+        assertEquals(itemTest.getId(), actualItemDtos.get(0).getId());
+        assertEquals(itemTest.getName(), actualItemDtos.get(0).getName());
+        assertEquals(itemTest.getDescription(), actualItemDtos.get(0).getDescription());
+    }
+
 
     @Test
     void updateItem() {
@@ -155,6 +202,25 @@ class ItemServiceImplTest {
 
         assertEquals("updated name", savedItem.getName());
         assertEquals("updated description", savedItem.getDescription());
+    }
+
+    @Test
+    void mapperBooking() {
+        LocalDateTime start = LocalDateTime.now().plusDays(1);
+        LocalDateTime end = LocalDateTime.now().plusDays(2);
+        BookingDtoForItem booking = ItemMapper.bookingDtoForItem(Booking.builder()
+                .id(1)
+                .item(item)
+                .booker(user)
+                .status(Status.APPROVED)
+                .start(start)
+                .end(end)
+                .build());
+
+        assertEquals(1, booking.getId());
+        assertEquals(start, booking.getStart());
+        assertEquals(end, booking.getEnd());
+        assertEquals(Status.APPROVED, booking.getStatus());
     }
 
     @Test

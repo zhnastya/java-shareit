@@ -127,6 +127,30 @@ class BookingControllerTest {
     }
 
     @Test
+    void getSortedFail() throws Exception {
+        when(bookingService.getBooking(anyInt(), anyInt()))
+                .thenReturn(BookingMapper.bookingToDto(booking));
+
+        mvc.perform(get("/bookings")
+                        .header(authenticationHeader, 3)
+                        .queryParam("from", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("error", is("значения from и size не могут быть отрицательными")));
+    }
+
+    @Test
+    void getSortedOwnerFail() throws Exception {
+        when(bookingService.getBooking(anyInt(), anyInt()))
+                .thenReturn(BookingMapper.bookingToDto(booking));
+
+        mvc.perform(get("/bookings/owner")
+                        .header(authenticationHeader, 3)
+                        .queryParam("from", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("error", is("значения from и size не могут быть отрицательными")));
+    }
+
+    @Test
     void getAllByBooker() throws Exception {
         when(bookingService.getSorted(anyInt(), eq(SortField.ALL), anyInt(), anyInt()))
                 .thenReturn(List.of(BookingMapper.bookingToDto(booking)));
