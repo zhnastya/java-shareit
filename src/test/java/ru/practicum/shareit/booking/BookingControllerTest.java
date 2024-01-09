@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,6 +96,38 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.id", is(booking.getId()), Integer.class))
                 .andExpect(jsonPath("$.status", is(booking.getStatus().toString())))
                 .andExpect(jsonPath("$.booker.id", is(booker.getId())));
+    }
+
+    @Test
+    @SneakyThrows
+    void handleValidationException() {
+        BookingRequestDto dto1 = BookingRequestDto.builder()
+                .itemId(1)
+                .start(LocalDateTime.now().plusDays(2))
+                .end(LocalDateTime.now().plusDays(1))
+                .build();
+        BookingRequestDto dto2 = BookingRequestDto.builder()
+                .itemId(1)
+                .start(LocalDateTime.now().plusDays(2))
+                .end(LocalDateTime.now().minusDays(1))
+                .build();
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(dto1))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(authenticationHeader, 3)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("error", is("Дата старта должна быть раньше окончания")));
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(dto2))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(authenticationHeader, 3)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("error", is("Дата старта должна быть раньше окончания, дата окончания не может быть в прошлом")));
     }
 
     @Test
