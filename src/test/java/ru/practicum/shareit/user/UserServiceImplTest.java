@@ -47,14 +47,13 @@ class UserServiceImplTest {
 
     @Test
     void updateUserTest() {
-        UserDto user = userService.saveUser(userDto);
-        int userId = user.getId();
-
+        User userUp = User.builder().id(1).name("name").email("my@email.com").build();
         UserDto fieldsToUpdate = new UserDto();
         fieldsToUpdate.setEmail("updated@example.com");
         fieldsToUpdate.setName("Updated User");
-        when(userRepository.findById(userId)).thenReturn(Optional.of(UserMapper.mapToModel(user)));
-        UserDto updatedUserDto = userService.updateUser(userId, fieldsToUpdate);
+
+        when(userRepository.findById(anyInt())).thenReturn(Optional.of(userUp));
+        UserDto updatedUserDto = userService.updateUser(1, fieldsToUpdate);
         assertNotNull(updatedUserDto);
         assertEquals("Updated User", updatedUserDto.getName());
         assertEquals("updated@example.com", updatedUserDto.getEmail());
