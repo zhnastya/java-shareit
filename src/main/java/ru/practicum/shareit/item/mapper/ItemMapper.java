@@ -9,9 +9,11 @@ import ru.practicum.shareit.item.model.Item;
 @Component
 public class ItemMapper {
 
-    public static ItemFullDto mapperToDto(int userId, Item item) {
+    public static ItemFullDto mapperToDto(Item item) {
+        Integer requestId = item.getRequest() != null ? item.getRequest().getId() : null;
         return ItemFullDto.builder()
                 .id(item.getId())
+                .requestId(requestId)
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())

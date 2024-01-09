@@ -50,11 +50,16 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getSorted(@RequestHeader("X-Sharer-User-Id") int userId,
                                       @RequestParam(name = "state", required = false,
-                                              defaultValue = "ALL") String field) {
+                                              defaultValue = "ALL") String field,
+                                      @RequestParam(defaultValue = "0", required = false) int from,
+                                      @RequestParam(defaultValue = "10", required = false) int size) {
         log.info("Запрос на просмотр бронирований со статусом - " + field);
         SortField state = SortField.from(field)
                 .orElseThrow(() -> new BookingException("Unknown state: " + field));
-        List<BookingDto> list = service.getSorted(userId, state);
+        if (from < 0 || size < 0) {
+            throw new BookingException("значения from и size не могут быть отрицательными");
+        }
+        List<BookingDto> list = service.getSorted(userId, state, from, size);
         log.info("Отправлен список бронирований со статусом - " + field);
         return list;
     }
@@ -62,11 +67,16 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingDto> getByOwner(@RequestHeader("X-Sharer-User-Id") int userId,
                                        @RequestParam(name = "state", required = false,
-                                               defaultValue = "ALL") String field) {
+                                               defaultValue = "ALL") String field,
+                                       @RequestParam(defaultValue = "0", required = false) int from,
+                                       @RequestParam(defaultValue = "10", required = false) int size) {
         log.info("Запрос на просмотр бронирований владельцем со статусом - " + field);
         SortField state = SortField.from(field)
                 .orElseThrow(() -> new BookingException("Unknown state: " + field));
-        List<BookingDto> list = service.getSortedByOwner(userId, state);
+        if (from < 0 || size < 0) {
+            throw new BookingException("значения from и size не могут быть отрицательными");
+        }
+        List<BookingDto> list = service.getSortedByOwner(userId, state, from, size);
         log.info("Отправлен список бронирований владельца - " + userId + " со статусом - " + field);
         return list;
     }

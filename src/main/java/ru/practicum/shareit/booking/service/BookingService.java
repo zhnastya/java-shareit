@@ -13,7 +13,7 @@ public interface BookingService {
 
     BookingDto getBooking(int userId, int bookingId);
 
-    List<BookingDto> getSorted(int booker, SortField state);
+    List<BookingDto> getSorted(int booker, SortField state, int from, int size);
 
-    List<BookingDto> getSortedByOwner(int ownerId, SortField state);
+    List<BookingDto> getSortedByOwner(int ownerId, SortField state, int from, int size);
 }

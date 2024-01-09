@@ -6,6 +6,14 @@ CREATE TABLE IF NOT EXISTS users
     email VARCHAR(100) UNIQUE NOT NULL,
     CONSTRAINT UQ_USER_EMAIL UNIQUE (email)
 );
+CREATE TABLE IF NOT EXISTS requests
+(
+    id        BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    description      VARCHAR(250),
+    owner_id   BIGINT,
+    created TIMESTAMP WITHOUT TIME ZONE,
+    FOREIGN KEY(owner_id) REFERENCES users(id)
+);
 
 CREATE TABLE IF NOT EXISTS items
 (
@@ -14,7 +22,9 @@ CREATE TABLE IF NOT EXISTS items
     description  VARCHAR(250),
     available BOOLEAN NOT NULL,
     owner_id BIGINT NOT NULL,
-    FOREIGN KEY(owner_id) REFERENCES users(id)
+    request_id BIGINT,
+    FOREIGN KEY(owner_id) REFERENCES users(id),
+    FOREIGN KEY (request_id) REFERENCES requests(id)
 );
 
 CREATE TABLE IF NOT EXISTS bookings
