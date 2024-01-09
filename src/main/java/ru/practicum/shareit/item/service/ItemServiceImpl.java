@@ -75,8 +75,7 @@ public class ItemServiceImpl implements ItemService {
             item1.setRequest(request);
         }
         item1.setOwner(user);
-        repository.save(item1);
-        return mapperToDto(item1);
+        return mapperToDto(repository.save(item1));
     }
 
     @Transactional
