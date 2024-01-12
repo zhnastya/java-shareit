@@ -56,12 +56,12 @@ public class BookingController {
     public List<BookingDto> getSorted(@RequestHeader("X-Sharer-User-Id") int userId,
                                       @RequestParam(name = "state", required = false,
                                               defaultValue = "ALL") String field,
-                                       @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
-                                       @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+                                      @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
+                                      @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
         log.info("Запрос на просмотр бронирований со статусом - " + field);
         SortField state = SortField.from(field)
                 .orElseThrow(() -> new BookingException("Unknown state: " + field));
-        PageRequest request = PageRequest.of(from/size, size, Sort.by(Sort.Direction.DESC, "start"));
+        PageRequest request = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"));
         List<BookingDto> list = service.getSorted(userId, state, request);
         log.info("Отправлен список бронирований со статусом - " + field);
         return list;
