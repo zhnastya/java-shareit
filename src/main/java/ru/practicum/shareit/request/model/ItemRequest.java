@@ -21,7 +21,7 @@ public class ItemRequest {
     @Column(length = 1024, nullable = false)
     private String description;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User owner;
 
     private LocalDateTime created;

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -224,7 +225,7 @@ class BookingServiceImplTest {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(bookingRepository.findAllByBooker(any(User.class), any(Pageable.class))).thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.ALL, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.ALL, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
@@ -236,7 +237,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findCustomByCurrent(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.CURRENT, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.CURRENT, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
@@ -248,7 +249,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findAllByBookerAndStatus(any(User.class), any(Status.class), any(Pageable.class)))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.WAITING, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.WAITING, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
@@ -260,7 +261,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findAllByBookerAndStatus(any(User.class), any(Status.class), any(Pageable.class)))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.REJECTED, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.REJECTED, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
@@ -272,7 +273,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findCustomByPast(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.PAST, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.PAST, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
@@ -284,7 +285,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findCustomByFuture(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.FUTURE, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSorted(user.getId(), SortField.FUTURE, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
@@ -293,7 +294,7 @@ class BookingServiceImplTest {
     @Test
     void getAllByBookerWhenBookingStateIsNotValidShouldThrowIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class,
-                () -> bookingService.getSorted(user.getId(), SortField.valueOf("Error"), 0, 10));
+                () -> bookingService.getSorted(user.getId(), SortField.valueOf("Error"), PageRequest.of(0, 10)));
     }
 
     @Test
@@ -303,7 +304,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findCustomAllOwner(any(User.class), any(Pageable.class)))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.ALL, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.ALL, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
@@ -315,7 +316,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findCustomByCurrentOwner(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.CURRENT, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.CURRENT, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
@@ -327,7 +328,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findCustomByPastOwner(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.PAST, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.PAST, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
@@ -339,7 +340,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findCustomByStatusOwner(any(User.class), any(Status.class), any(Pageable.class)))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.WAITING, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.WAITING, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
@@ -351,7 +352,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findCustomByStatusOwner(any(User.class), any(Status.class), any(Pageable.class)))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.REJECTED, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.REJECTED, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
@@ -363,7 +364,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findCustomByFutureOwner(any(User.class), any(LocalDateTime.class), any(Pageable.class)))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.FUTURE, 0, 10);
+        List<BookingDto> actualBookingsDtoOut = bookingService.getSortedByOwner(user.getId(), SortField.FUTURE, PageRequest.of(0, 10));
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }

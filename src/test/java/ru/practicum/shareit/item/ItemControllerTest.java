@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -53,8 +52,7 @@ public class ItemControllerTest {
 
 
     @Test
-    @SneakyThrows
-    public void createItemWhenItemIsValid() {
+    public void createItemWhenItemIsValid() throws Exception {
         int userId = 1;
         ItemFullDto itemDtoToCreate = ItemFullDto.builder()
                 .description("description")
@@ -80,8 +78,7 @@ public class ItemControllerTest {
 
 
     @Test
-    @SneakyThrows
-    public void updateWhenItemIsValidShouldReturnStatusIsOk() {
+    public void updateWhenItemIsValidShouldReturnStatusIsOk() throws Exception {
         int itemId = 0;
         int userId = 0;
         ItemFullDto itemDtoToCreate = ItemFullDto.builder()
@@ -107,8 +104,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    public void getShouldReturnStatusOk() {
+    public void getShouldReturnStatusOk() throws Exception {
         int itemId = 0;
         int userId = 0;
         ItemFullDto itemDtoToCreate = ItemFullDto.builder()
@@ -133,8 +129,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    public void getAllShouldReturnStatusOk() {
+    public void getAllShouldReturnStatusOk() throws Exception {
         int userId = 0;
         int from = 0;
         int size = 10;
@@ -157,8 +152,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    public void searchItemsShouldReturnStatusOk() {
+    public void searchItemsShouldReturnStatusOk() throws Exception {
         int userId = 0;
         int from = 0;
         int size = 10;
@@ -184,8 +178,7 @@ public class ItemControllerTest {
 
 
     @Test
-    @SneakyThrows
-    public void createCommentWhenCommentIsValidShouldReturnStatusIsOk() {
+    public void createCommentWhenCommentIsValidShouldReturnStatusIsOk() throws Exception {
         CommentDto commentToAdd = CommentDto.builder()
                 .text("some comment")
                 .build();

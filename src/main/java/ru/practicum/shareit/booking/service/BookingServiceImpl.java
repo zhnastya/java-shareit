@@ -1,8 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -104,30 +103,28 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookingDto> getSorted(int bookerId, SortField state, int from, int size) {
+    public List<BookingDto> getSorted(int bookerId, SortField state, Pageable pageable) {
         User booker = userRepository.findById(bookerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id - " + bookerId + " не найден"));
-        Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest pageRequest = PageRequest.of(from / size, size, sort);
         List<Booking> bookings = new ArrayList<>();
         switch (state) {
             case ALL:
-                bookings = repository.findAllByBooker(booker, pageRequest);
+                bookings = repository.findAllByBooker(booker, pageable);
                 break;
             case CURRENT:
-                bookings = repository.findCustomByCurrent(booker, LocalDateTime.now(), pageRequest);
+                bookings = repository.findCustomByCurrent(booker, LocalDateTime.now(), pageable);
                 break;
             case PAST:
-                bookings = repository.findCustomByPast(booker, LocalDateTime.now(), pageRequest);
+                bookings = repository.findCustomByPast(booker, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
-                bookings = repository.findCustomByFuture(booker, LocalDateTime.now(), pageRequest);
+                bookings = repository.findCustomByFuture(booker, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
-                bookings = repository.findAllByBookerAndStatus(booker, Status.WAITING, pageRequest);
+                bookings = repository.findAllByBookerAndStatus(booker, Status.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = repository.findAllByBookerAndStatus(booker, Status.REJECTED, pageRequest);
+                bookings = repository.findAllByBookerAndStatus(booker, Status.REJECTED, pageable);
                 break;
         }
         return bookings.stream()
@@ -137,30 +134,28 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookingDto> getSortedByOwner(int ownerId, SortField state, int from, int size) {
+    public List<BookingDto> getSortedByOwner(int ownerId, SortField state, Pageable pageable) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id - " + ownerId + " не найден"));
-        Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        PageRequest pageRequest = PageRequest.of(from / size, size, sort);
         List<Booking> bookings = new ArrayList<>();
         switch (state) {
             case ALL:
-                bookings = repository.findCustomAllOwner(owner, pageRequest);
+                bookings = repository.findCustomAllOwner(owner, pageable);
                 break;
             case CURRENT:
-                bookings = repository.findCustomByCurrentOwner(owner, LocalDateTime.now(), pageRequest);
+                bookings = repository.findCustomByCurrentOwner(owner, LocalDateTime.now(), pageable);
                 break;
             case PAST:
-                bookings = repository.findCustomByPastOwner(owner, LocalDateTime.now(), pageRequest);
+                bookings = repository.findCustomByPastOwner(owner, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
-                bookings = repository.findCustomByFutureOwner(owner, LocalDateTime.now(), pageRequest);
+                bookings = repository.findCustomByFutureOwner(owner, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
-                bookings = repository.findCustomByStatusOwner(owner, Status.WAITING, pageRequest);
+                bookings = repository.findCustomByStatusOwner(owner, Status.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = repository.findCustomByStatusOwner(owner, Status.REJECTED, pageRequest);
+                bookings = repository.findCustomByStatusOwner(owner, Status.REJECTED, pageable);
                 break;
         }
         return bookings.stream()

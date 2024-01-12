@@ -61,7 +61,7 @@ class CommentRepositoryTest {
 
     @Test
     void findAllByItemId() {
-        List<Comment> comments = commentRepository.findAllByItem_Id(1);
+        List<Comment> comments = commentRepository.findAllByItem_IdIn(List.of(1));
 
         assertEquals(comments.size(), 1);
         assertEquals(comments.get(0).getText(), "comment");

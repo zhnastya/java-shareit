@@ -30,6 +30,15 @@ public class ErrorHandler {
         );
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleConflictException(final IllegalArgumentException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse(
+                String.format("Ошибка валидации:  \"%s\".", e.getMessage())
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleInvalidExeption(MethodArgumentNotValidException ex) {

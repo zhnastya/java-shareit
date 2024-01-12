@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -48,8 +47,7 @@ class ItemRequestControllerTest {
             .build();
 
     @Test
-    @SneakyThrows
-    void createRequest() {
+    void createRequest() throws Exception {
         when(requestService.create(any(), any())).thenReturn(requestDto);
 
         String result = mockMvc.perform(MockMvcRequestBuilders.post("/requests")
@@ -66,8 +64,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void getUserRequests() {
+    void getUserRequests() throws Exception {
         when(requestService.getAllByUser(user.getId())).thenReturn(List.of(requestDto));
 
         String result = mockMvc.perform(MockMvcRequestBuilders.get("/requests")
@@ -83,8 +80,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void getAllRequests() {
+    void getAllRequests() throws Exception {
         int from = 0;
         int size = 10;
         when(requestService.getAll(from, size, user.getId())).thenReturn(List.of(requestDto));
@@ -102,8 +98,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void get() {
+    void get() throws Exception {
         int requestId = 1;
 
         when(requestService.getById(user.getId(), requestId)).thenReturn(requestDto);

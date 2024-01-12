@@ -22,7 +22,7 @@ public class Item {
     private Boolean available;
     @ManyToOne(fetch = FetchType.EAGER)
     private User owner;
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id", referencedColumnName = "id")
     private ItemRequest request;
 }

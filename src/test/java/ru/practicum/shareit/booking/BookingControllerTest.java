@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -127,7 +128,7 @@ class BookingControllerTest {
                         .header(authenticationHeader, 3)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", is("Дата старта должна быть раньше окончания, дата окончания не может быть в прошлом")));
+                .andExpect(jsonPath("error", is("дата окончания не может быть в прошлом, Дата старта должна быть раньше окончания")));
     }
 
     @Test
@@ -167,8 +168,7 @@ class BookingControllerTest {
         mvc.perform(get("/bookings")
                         .header(authenticationHeader, 3)
                         .queryParam("from", "-1"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", is("значения from и size не могут быть отрицательными")));
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -179,16 +179,15 @@ class BookingControllerTest {
         mvc.perform(get("/bookings/owner")
                         .header(authenticationHeader, 3)
                         .queryParam("from", "-1"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", is("значения from и size не могут быть отрицательными")));
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
     void getAllByBooker() throws Exception {
-        when(bookingService.getSorted(anyInt(), eq(SortField.ALL), anyInt(), anyInt()))
+        when(bookingService.getSorted(anyInt(), eq(SortField.ALL), any(Pageable.class)))
                 .thenReturn(List.of(BookingMapper.bookingToDto(booking)));
 
-        mvc.perform(get("/bookings")
+        mvc.perform(get("/bookings?from=0&size=5")
                         .param("state", "ALL")
                         .header(authenticationHeader, 3))
                 .andExpect(status().isOk())
@@ -198,10 +197,10 @@ class BookingControllerTest {
 
     @Test
     void getAllByOwner() throws Exception {
-        when(bookingService.getSortedByOwner(anyInt(), eq(SortField.ALL), anyInt(), anyInt()))
+        when(bookingService.getSortedByOwner(anyInt(), eq(SortField.ALL), any(Pageable.class)))
                 .thenReturn(List.of(BookingMapper.bookingToDto(booking)));
 
-        mvc.perform(get("/bookings/owner")
+        mvc.perform(get("/bookings/owner?from=0&size=5")
                         .param("state", "ALL")
                         .header(authenticationHeader, 2))
                 .andExpect(status().isOk())

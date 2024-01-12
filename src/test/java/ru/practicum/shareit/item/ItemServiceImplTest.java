@@ -148,8 +148,7 @@ class ItemServiceImplTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.findByOwnerIdOrderById(any(Integer.class))).thenReturn(List.of(itemTest));
-        when(commentRepository.findAllByItem_Id(anyInt())).thenReturn(List.of(comment));
-        when(itemRepository.findById(anyInt())).thenReturn(Optional.of(itemTest));
+        when(commentRepository.findAllByItem_IdIn(any(List.class))).thenReturn(List.of(comment));
 
         List<ItemFullDto> actualItemDtos = itemService.getAllByUser(user.getId());
 
@@ -171,8 +170,7 @@ class ItemServiceImplTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(itemRepository.findItemByAvailableAndQueryContainWithIgnoreCase(any(String.class))).thenReturn(List.of(itemTest));
-        when(commentRepository.findAllByItem_Id(anyInt())).thenReturn(List.of(comment));
-        when(itemRepository.findById(anyInt())).thenReturn(Optional.of(itemTest));
+        when(commentRepository.findAllByItem_IdIn(any(List.class))).thenReturn(List.of(comment));
 
         List<ItemFullDto> actualItemDtos = itemService.getByName(user.getId(), "name");
 

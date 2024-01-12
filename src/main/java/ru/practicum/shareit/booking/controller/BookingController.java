@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -10,9 +13,11 @@ import ru.practicum.shareit.booking.exeptions.BookingException;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
+@Validated
 @Slf4j
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
@@ -51,15 +56,13 @@ public class BookingController {
     public List<BookingDto> getSorted(@RequestHeader("X-Sharer-User-Id") int userId,
                                       @RequestParam(name = "state", required = false,
                                               defaultValue = "ALL") String field,
-                                      @RequestParam(defaultValue = "0", required = false) int from,
-                                      @RequestParam(defaultValue = "10", required = false) int size) {
+                                       @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
+                                       @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
         log.info("Запрос на просмотр бронирований со статусом - " + field);
         SortField state = SortField.from(field)
                 .orElseThrow(() -> new BookingException("Unknown state: " + field));
-        if (from < 0 || size < 0) {
-            throw new BookingException("значения from и size не могут быть отрицательными");
-        }
-        List<BookingDto> list = service.getSorted(userId, state, from, size);
+        PageRequest request = PageRequest.of(from/size, size, Sort.by(Sort.Direction.DESC, "start"));
+        List<BookingDto> list = service.getSorted(userId, state, request);
         log.info("Отправлен список бронирований со статусом - " + field);
         return list;
     }
@@ -68,15 +71,13 @@ public class BookingController {
     public List<BookingDto> getByOwner(@RequestHeader("X-Sharer-User-Id") int userId,
                                        @RequestParam(name = "state", required = false,
                                                defaultValue = "ALL") String field,
-                                       @RequestParam(defaultValue = "0", required = false) int from,
-                                       @RequestParam(defaultValue = "10", required = false) int size) {
+                                       @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
+                                       @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
         log.info("Запрос на просмотр бронирований владельцем со статусом - " + field);
         SortField state = SortField.from(field)
                 .orElseThrow(() -> new BookingException("Unknown state: " + field));
-        if (from < 0 || size < 0) {
-            throw new BookingException("значения from и size не могут быть отрицательными");
-        }
-        List<BookingDto> list = service.getSortedByOwner(userId, state, from, size);
+        PageRequest request = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"));
+        List<BookingDto> list = service.getSortedByOwner(userId, state, request);
         log.info("Отправлен список бронирований владельца - " + userId + " со статусом - " + field);
         return list;
     }

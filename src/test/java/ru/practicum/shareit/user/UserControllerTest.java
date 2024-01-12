@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,8 +33,7 @@ class UserControllerTest {
     private UserService userService;
 
     @Test
-    @SneakyThrows
-    void createUserWhenUserIsValid() {
+    void createUserWhenUserIsValid() throws Exception {
         UserDto userDtoToCreate = UserDto.builder()
                 .email("email@email.com")
                 .name("name")
@@ -56,8 +54,7 @@ class UserControllerTest {
 
 
     @Test
-    @SneakyThrows
-    void updateUserWhenUserIsValid() {
+    void updateUserWhenUserIsValid() throws Exception {
         int userId = 0;
         UserDto userDtoToUpdate = UserDto.builder()
                 .email("update@update.com")
@@ -79,8 +76,7 @@ class UserControllerTest {
 
 
     @Test
-    @SneakyThrows
-    void get() {
+    void get() throws Exception {
         int userId = 1;
         when(userService.getById(anyInt())).thenReturn(new UserDto(1, "name", "email@email.ru"));
 
@@ -92,8 +88,7 @@ class UserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void findAll() {
+    void findAll() throws Exception {
         List<UserDto> usersDtoToExpect = List.of(UserDto.builder()
                 .name("name")
                 .email("email@email.com")
@@ -111,8 +106,7 @@ class UserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void delete() {
+    void delete() throws Exception {
         int userId = 0;
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/users/{id}", userId))
