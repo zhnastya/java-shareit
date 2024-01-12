@@ -128,7 +128,7 @@ class BookingControllerTest {
                         .header(authenticationHeader, 3)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("error", is("Дата старта должна быть раньше окончания, дата окончания не может быть в прошлом")));
+                .andExpect(jsonPath("error", is("дата окончания не может быть в прошлом, Дата старта должна быть раньше окончания")));
     }
 
     @Test
