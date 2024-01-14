@@ -57,7 +57,7 @@ public class BookingServiceImpl implements BookingService {
         if (item.getOwner().equals(booker)) {
             throw new NotFoundException("Владелец не может забронировать вещь");
         }
-        List<Booking> bookings = repository.findAllByItem_Id(item.getId());
+        List<Booking> bookings = repository.findAllByItem_IdIn(List.of(item.getId()));
         if (!bookings.isEmpty() && checkTimeZone(bookings, bookingRequestDto.getStart(), bookingRequestDto.getEnd())) {
             throw new BookingException("Указанное время уже забронировано");
         }

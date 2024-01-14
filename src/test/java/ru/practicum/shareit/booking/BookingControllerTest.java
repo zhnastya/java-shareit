@@ -171,6 +171,7 @@ class BookingControllerTest {
                 .andExpect(status().isInternalServerError());
     }
 
+
     @Test
     void getSortedOwnerFail() throws Exception {
         when(bookingService.getBooking(anyInt(), anyInt()))

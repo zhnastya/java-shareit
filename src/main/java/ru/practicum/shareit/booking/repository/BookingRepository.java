@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findAllByBooker(User booker, Pageable pageable);
 
-    List<Booking> findAllByItem_Id(Integer id);
+    List<Booking> findAllByItem_IdIn(List<Integer> id);
 
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
