@@ -31,8 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -200,6 +199,9 @@ class ItemServiceImplTest {
 
         assertEquals("updated name", savedItem.getName());
         assertEquals("updated description", savedItem.getDescription());
+        assertEquals(0, savedItem.getComments().size());
+        assertNull(savedItem.getLastBooking());
+        assertNull(savedItem.getNextBooking());
     }
 
     @Test
@@ -219,6 +221,7 @@ class ItemServiceImplTest {
         assertEquals(start, booking.getStart());
         assertEquals(end, booking.getEnd());
         assertEquals(Status.APPROVED, booking.getStatus());
+        assertNull(ItemMapper.bookingDtoForItem(null));
     }
 
     @Test
