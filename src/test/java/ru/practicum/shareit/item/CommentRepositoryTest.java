@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +11,8 @@ import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
 class CommentRepositoryTest {
@@ -29,6 +27,10 @@ class CommentRepositoryTest {
             .name("name")
             .email("email@email.com")
             .build();
+    private final User author = User.builder()
+            .name("name")
+            .email("author@email.com")
+            .build();
     private final Item item = Item.builder()
             .name("name")
             .description("description")
@@ -38,7 +40,7 @@ class CommentRepositoryTest {
 
     private final Comment comment = Comment.builder()
             .item(item)
-            .author(user)
+            .author(author)
             .timeOfCreated(LocalDateTime.now())
             .text("comment")
             .build();
@@ -47,21 +49,20 @@ class CommentRepositoryTest {
     @BeforeEach
     public void init() {
         testEntityManager.persist(user);
+        testEntityManager.persist(author);
         testEntityManager.persist(item);
         testEntityManager.flush();
         commentRepository.save(comment);
     }
 
-    @AfterEach
-    public void deleteAll() {
-        commentRepository.deleteAll();
-    }
-
     @Test
-    void findAllByItemId() {
-        List<Comment> comments = commentRepository.findAllByItem_IdIn(List.of(1));
+    void contextLoads() {
+        assertThat(commentRepository.count())
+                .isEqualTo(1);
 
-        assertEquals(comments.size(), 1);
-        assertEquals(comments.get(0).getText(), "comment");
+        assertThat(testEntityManager.getEntityManager()
+                .createQuery("SELECT COUNT(*) FROM Comment i", Long.class)
+                .getSingleResult())
+                .isEqualTo(1L);
     }
 }

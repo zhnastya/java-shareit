@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 public class UserRepositoryTest {
+
     @Autowired
     private UserRepository userRepository;
 
