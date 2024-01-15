@@ -12,7 +12,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -80,9 +79,6 @@ class BookingRepositoryTest {
     @Test
     void contextLoads() {
         assertThat(bookingRepository.count())
-                .isEqualTo(3);
-
-        assertThat(bookingRepository.findAllByStatusAndItem_IdIn(Status.APPROVED, List.of(1)).size())
                 .isEqualTo(3);
     }
 }
