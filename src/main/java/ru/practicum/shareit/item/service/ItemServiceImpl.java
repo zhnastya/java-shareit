@@ -168,7 +168,7 @@ public class ItemServiceImpl implements ItemService {
                 .map(Item::getId)
                 .collect(Collectors.toList());
         List<Integer> itemForOwner = items.stream()
-                .filter(x->x.getOwner().getId()==userId)
+                .filter(x -> x.getOwner().getId() == userId)
                 .map(Item::getId)
                 .collect(Collectors.toList());
         Map<Integer, List<Comment>> comments = commentRepository.findAllByItem_IdIn(itemsIds)

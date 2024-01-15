@@ -16,6 +16,7 @@ import java.util.Optional;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findAllByBooker(User booker, Pageable pageable);
+
     List<Booking> findAllByStatusAndItem_Id(Status status, Integer itemId);
 
     List<Booking> findAllByStatusAndItem_IdIn(Status status, List<Integer> id);
