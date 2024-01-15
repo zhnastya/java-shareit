@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = BookingController.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class BookingControllerTest {
 
     private final String authenticationHeader = "X-Sharer-User-Id";
@@ -100,8 +99,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void handleValidationException() {
+    void handleValidationException() throws Exception {
         BookingRequestDto dto1 = BookingRequestDto.builder()
                 .itemId(1)
                 .start(LocalDateTime.now().plusDays(2))

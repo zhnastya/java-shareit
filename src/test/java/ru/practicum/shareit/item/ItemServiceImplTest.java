@@ -199,7 +199,6 @@ class ItemServiceImplTest {
 
         assertEquals("updated name", savedItem.getName());
         assertEquals("updated description", savedItem.getDescription());
-        assertEquals(0, savedItem.getComments().size());
         assertNull(savedItem.getLastBooking());
         assertNull(savedItem.getNextBooking());
     }

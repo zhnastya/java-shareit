@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -48,13 +47,11 @@ public class ItemServiceImpl implements ItemService {
         Booking last = bookings.stream()
                 .filter(x -> x.getEnd().isBefore(dateTime)
                         || x.getStart().isBefore(dateTime)
-                        && x.getEnd().isAfter(dateTime)
-                        && x.getStatus().equals(Status.APPROVED))
+                        && x.getEnd().isAfter(dateTime))
                 .max(Comparator.comparing(Booking::getEnd))
                 .orElse(null);
         Booking next = bookings.stream()
-                .filter(x -> x.getStart().isAfter(dateTime)
-                        && x.getStatus().equals(Status.APPROVED))
+                .filter(x -> x.getStart().isAfter(dateTime))
                 .min(Comparator.comparing(Booking::getStart))
                 .orElse(null);
         dto.setLastBooking(bookingDtoForItem(last));
@@ -119,14 +116,8 @@ public class ItemServiceImpl implements ItemService {
         if (item.getAvailable() != null) itemUpdate.setAvailable(item.getAvailable());
         if (item.getDescription() != null) itemUpdate.setDescription(item.getDescription());
         if (item.getName() != null) itemUpdate.setName(item.getName());
-        Map<Integer, List<Comment>> comments = commentRepository.findAllByItem_IdIn(List.of(id))
-                .stream()
-                .collect(groupingBy(x -> x.getItem().getId()));
-        Map<Integer, List<Booking>> bookings = bookingRepository.findAllByItem_IdIn(List.of(id))
-                .stream()
-                .collect(groupingBy(x -> x.getItem().getId()));
-        ItemFullDto dto = setComments(mapperToDto(itemUpdate), comments.get(id));
-        return setBookings(dto, bookings.get(id));
+
+        return mapperToDto(itemUpdate);
     }
 
     @Transactional(readOnly = true)
@@ -134,16 +125,9 @@ public class ItemServiceImpl implements ItemService {
     public ItemFullDto getByItemId(int userId, int id) {
         Item item = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь с id - " + id + "не найдена"));
-        Map<Integer, List<Comment>> comments = commentRepository.findAllByItem_IdIn(List.of(id))
-                .stream()
-                .collect(groupingBy(x -> x.getItem().getId()));
-        ItemFullDto dto = setComments(mapperToDto(item), comments.get(id));
+        ItemFullDto dto = setComments(mapperToDto(item), commentRepository.findAllByItem_Id(id));
         if (item.getOwner().getId() == userId) {
-            Map<Integer, List<Booking>> bookings = bookingRepository.findAllByItem_IdIn(List.of(id))
-                    .stream()
-                    .collect(groupingBy(x -> x.getItem().getId()));
-
-            return setBookings(dto, bookings.get(id));
+            return setBookings(dto, bookingRepository.findAllByStatusAndItem_Id(Status.APPROVED, id));
         }
         return dto;
     }
@@ -153,17 +137,18 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemFullDto> getAllByUser(int userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id - " + userId + " не найден"));
-        Map<Integer, Item> items = repository.findByOwnerIdOrderById(userId)
-                .stream()
-                .collect(Collectors.toMap(Item::getId, Function.identity()));
-        Map<Integer, List<Comment>> comments = commentRepository.findAllByItem_IdIn(new ArrayList<>(items.keySet()))
+        List<Item> items = repository.findByOwnerIdOrderById(userId);
+        List<Integer> itemsIds = items.stream()
+                .map(Item::getId)
+                .collect(Collectors.toList());
+        Map<Integer, List<Comment>> comments = commentRepository.findAllByItem_IdIn(itemsIds)
                 .stream()
                 .collect(groupingBy(x -> x.getItem().getId()));
-        Map<Integer, List<Booking>> bookings = bookingRepository.findAllByItem_IdIn(new ArrayList<>(items.keySet()))
+        Map<Integer, List<Booking>> bookings = bookingRepository.findAllByStatusAndItem_IdIn(Status.APPROVED, itemsIds)
                 .stream()
                 .collect(groupingBy(x -> x.getItem().getId()));
 
-        return items.values().stream()
+        return items.stream()
                 .map(ItemMapper::mapperToDto)
                 .peek(x -> {
                     setComments(x, comments.get(x.getId()));
@@ -178,20 +163,25 @@ public class ItemServiceImpl implements ItemService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id - " + userId + " не найден"));
         if (name.isEmpty()) return new ArrayList<>();
-        Map<Integer, Item> items = repository.findItemByAvailableAndQueryContainWithIgnoreCase(name)
-                .stream()
-                .collect(Collectors.toMap(Item::getId, Function.identity()));
-        Map<Integer, List<Comment>> comments = commentRepository.findAllByItem_IdIn(new ArrayList<>(items.keySet()))
+        List<Item> items = repository.findItemByAvailableAndQueryContainWithIgnoreCase(name);
+        List<Integer> itemsIds = items.stream()
+                .map(Item::getId)
+                .collect(Collectors.toList());
+        List<Integer> itemForOwner = items.stream()
+                .filter(x->x.getOwner().getId()==userId)
+                .map(Item::getId)
+                .collect(Collectors.toList());
+        Map<Integer, List<Comment>> comments = commentRepository.findAllByItem_IdIn(itemsIds)
                 .stream()
                 .collect(groupingBy(x -> x.getItem().getId()));
-        Map<Integer, List<Booking>> bookings = bookingRepository.findAllByItem_IdIn(new ArrayList<>(items.keySet()))
+        Map<Integer, List<Booking>> bookings = bookingRepository.findAllByStatusAndItem_IdIn(Status.APPROVED, itemsIds)
                 .stream()
                 .collect(groupingBy(x -> x.getItem().getId()));
-        return items.values().stream()
+        return items.stream()
                 .map(ItemMapper::mapperToDto)
                 .peek(x -> {
                     setComments(x, comments.get(x.getId()));
-                    if (items.get(x.getId()).getOwner().getId() == userId) {
+                    if (itemForOwner.contains(x.getId())) {
                         setBookings(x, bookings.get(x.getId()));
                     }
                 })
