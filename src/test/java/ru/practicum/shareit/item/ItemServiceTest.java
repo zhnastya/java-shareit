@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,8 +83,7 @@ public class ItemServiceTest {
             .build();
 
     @Test
-    @SneakyThrows
-    void addCommentItem() {
+    void addCommentItem() throws InterruptedException {
         UserDto addedUser1 = userService.saveUser(userDto1);
         UserDto addedUser2 = userService.saveUser(userDto2);
         ItemFullDto addedItem = itemService.createItem(addedUser2.getId(), itemDto2);
