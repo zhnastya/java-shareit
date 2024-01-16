@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -57,7 +57,7 @@ public class BookingServiceImpl implements BookingService {
         if (item.getOwner().equals(booker)) {
             throw new NotFoundException("Владелец не может забронировать вещь");
         }
-        List<Booking> bookings = repository.findAllByItem_Id(item.getId());
+        List<Booking> bookings = repository.findAllByStatusAndItem_IdIn(Status.APPROVED, List.of(item.getId()));
         if (!bookings.isEmpty() && checkTimeZone(bookings, bookingRequestDto.getStart(), bookingRequestDto.getEnd())) {
             throw new BookingException("Указанное время уже забронировано");
         }
@@ -75,7 +75,7 @@ public class BookingServiceImpl implements BookingService {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id - " + ownerId + " не найден"));
         if (repository.findCustomByOwnerAndBookingId(owner, bookingId).isEmpty()) {
-            throw new NotFoundException("Пользователь - " + owner + " не является владельцем вещи");
+            throw new NotFoundException("Пользователь - " + owner.getId() + " не является владельцем вещи");
         }
         if (booking.getStatus() == Status.APPROVED) {
             throw new BookingException("Статус уже подтвержден");
@@ -103,29 +103,28 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookingDto> getSorted(int bookerId, SortField state) {
+    public List<BookingDto> getSorted(int bookerId, SortField state, Pageable pageable) {
         User booker = userRepository.findById(bookerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id - " + bookerId + " не найден"));
-        Sort sort = Sort.by(Sort.Direction.DESC, "start");
         List<Booking> bookings = new ArrayList<>();
         switch (state) {
             case ALL:
-                bookings = repository.findAllByBooker(booker, sort);
+                bookings = repository.findAllByBooker(booker, pageable);
                 break;
             case CURRENT:
-                bookings = repository.findCustomByCurrent(booker, LocalDateTime.now(), sort);
+                bookings = repository.findCustomByCurrent(booker, LocalDateTime.now(), pageable);
                 break;
             case PAST:
-                bookings = repository.findCustomByPast(booker, LocalDateTime.now(), sort);
+                bookings = repository.findCustomByPast(booker, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
-                bookings = repository.findCustomByFuture(booker, LocalDateTime.now(), sort);
+                bookings = repository.findCustomByFuture(booker, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
-                bookings = repository.findAllByBookerAndStatus(booker, Status.WAITING, sort);
+                bookings = repository.findAllByBookerAndStatus(booker, Status.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = repository.findAllByBookerAndStatus(booker, Status.REJECTED, sort);
+                bookings = repository.findAllByBookerAndStatus(booker, Status.REJECTED, pageable);
                 break;
         }
         return bookings.stream()
@@ -135,29 +134,28 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookingDto> getSortedByOwner(int ownerId, SortField state) {
+    public List<BookingDto> getSortedByOwner(int ownerId, SortField state, Pageable pageable) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id - " + ownerId + " не найден"));
-        Sort sort = Sort.by(Sort.Direction.DESC, "start");
         List<Booking> bookings = new ArrayList<>();
         switch (state) {
             case ALL:
-                bookings = repository.findCustomAllOwner(owner, sort);
+                bookings = repository.findCustomAllOwner(owner, pageable);
                 break;
             case CURRENT:
-                bookings = repository.findCustomByCurrentOwner(owner, LocalDateTime.now(), sort);
+                bookings = repository.findCustomByCurrentOwner(owner, LocalDateTime.now(), pageable);
                 break;
             case PAST:
-                bookings = repository.findCustomByPastOwner(owner, LocalDateTime.now(), sort);
+                bookings = repository.findCustomByPastOwner(owner, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
-                bookings = repository.findCustomByFutureOwner(owner, LocalDateTime.now(), sort);
+                bookings = repository.findCustomByFutureOwner(owner, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
-                bookings = repository.findCustomByStatusOwner(owner, Status.WAITING, sort);
+                bookings = repository.findCustomByStatusOwner(owner, Status.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = repository.findCustomByStatusOwner(owner, Status.REJECTED, sort);
+                bookings = repository.findCustomByStatusOwner(owner, Status.REJECTED, pageable);
                 break;
         }
         return bookings.stream()

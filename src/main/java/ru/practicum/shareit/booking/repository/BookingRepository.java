@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking.repository;
 
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,9 +15,11 @@ import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
-    List<Booking> findAllByBooker(User booker, Sort sort);
+    List<Booking> findAllByBooker(User booker, Pageable pageable);
 
-    List<Booking> findAllByItem_Id(Integer id);
+    List<Booking> findAllByStatusAndItem_Id(Status status, Integer itemId);
+
+    List<Booking> findAllByStatusAndItem_IdIn(Status status, List<Integer> id);
 
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
@@ -48,7 +50,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     )
     List<Booking> findAllByBookerAndItemAndStatus(User booker, Item item, Status status, LocalDateTime time);
 
-    List<Booking> findAllByBookerAndStatus(User booker, Status status, Sort sort);
+    List<Booking> findAllByBookerAndStatus(User booker, Status status, Pageable pageable);
 
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
@@ -57,7 +59,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND :time BETWEEN b.start and b.end " +
             "order by b.start desc"
     )
-    List<Booking> findCustomByCurrent(User booker, LocalDateTime time, Sort sort);
+    List<Booking> findCustomByCurrent(User booker, LocalDateTime time, Pageable pageable);
 
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
@@ -66,7 +68,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND :time > b.end " +
             "order by b.start desc"
     )
-    List<Booking> findCustomByPast(User booker, LocalDateTime time, Sort sort);
+    List<Booking> findCustomByPast(User booker, LocalDateTime time, Pageable pageable);
 
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
@@ -75,7 +77,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND :time < b.start " +
             "order by b.start desc"
     )
-    List<Booking> findCustomByFuture(User booker, LocalDateTime time, Sort sort);
+    List<Booking> findCustomByFuture(User booker, LocalDateTime time, Pageable pageable);
 
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
@@ -84,7 +86,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND :time BETWEEN b.start and b.end " +
             "order by b.start desc"
     )
-    List<Booking> findCustomByCurrentOwner(User owner, LocalDateTime time, Sort sort);
+    List<Booking> findCustomByCurrentOwner(User owner, LocalDateTime time, Pageable pageable);
 
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
@@ -93,7 +95,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND :time > b.end " +
             "order by b.start desc"
     )
-    List<Booking> findCustomByPastOwner(User owner, LocalDateTime time, Sort sort);
+    List<Booking> findCustomByPastOwner(User owner, LocalDateTime time, Pageable pageable);
 
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
@@ -102,7 +104,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND :time < b.start " +
             "order by b.start desc"
     )
-    List<Booking> findCustomByFutureOwner(User owner, LocalDateTime time, Sort sort);
+    List<Booking> findCustomByFutureOwner(User owner, LocalDateTime time, Pageable pageable);
 
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
@@ -111,7 +113,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND b.status = :status " +
             "order by b.start desc "
     )
-    List<Booking> findCustomByStatusOwner(User owner, Status status, Sort sort);
+    List<Booking> findCustomByStatusOwner(User owner, Status status, Pageable pageable);
 
     @Query(value = "SELECT b " +
             "FROM Booking as b " +
@@ -119,5 +121,5 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "b.item.owner = :owner " +
             "order by b.start DESC "
     )
-    List<Booking> findCustomAllOwner(User owner, Sort sort);
+    List<Booking> findCustomAllOwner(User owner, Pageable pageable);
 }

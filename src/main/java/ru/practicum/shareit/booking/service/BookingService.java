@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.enums.SortField;
@@ -13,7 +14,7 @@ public interface BookingService {
 
     BookingDto getBooking(int userId, int bookingId);
 
-    List<BookingDto> getSorted(int booker, SortField state);
+    List<BookingDto> getSorted(int booker, SortField state, Pageable pageable);
 
-    List<BookingDto> getSortedByOwner(int ownerId, SortField state);
+    List<BookingDto> getSortedByOwner(int ownerId, SortField state, Pageable pageable);
 }
