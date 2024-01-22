@@ -195,7 +195,7 @@ public class ItemControllerTest {
                         .contentType("application/json")
                         .header("X-Sharer-User-Id", user.getId())
                         .content(objectMapper.writeValueAsString(commentToAdd)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
