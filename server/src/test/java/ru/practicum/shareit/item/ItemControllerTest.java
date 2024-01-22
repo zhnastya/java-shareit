@@ -68,7 +68,7 @@ public class ItemControllerTest {
                         .contentType("application/json")
                         .header("X-Sharer-User-Id", userId)
                         .content(objectMapper.writeValueAsString(itemDtoToCreate)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -195,7 +195,7 @@ public class ItemControllerTest {
                         .contentType("application/json")
                         .header("X-Sharer-User-Id", user.getId())
                         .content(objectMapper.writeValueAsString(commentToAdd)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();

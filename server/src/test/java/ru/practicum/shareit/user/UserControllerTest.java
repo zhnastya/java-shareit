@@ -46,7 +46,7 @@ class UserControllerTest {
         String result = mockMvc.perform(post("/users")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(userDtoToCreate)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -112,7 +112,7 @@ class UserControllerTest {
         int userId = 0;
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/users/{id}", userId))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(userService, times(1)).deleteUser(userId);
     }

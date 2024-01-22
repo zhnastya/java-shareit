@@ -21,7 +21,7 @@ import java.util.List;
 public class ErrorHandlerGateway {
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(

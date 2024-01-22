@@ -92,7 +92,7 @@ class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(authenticationHeader, 3)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(booking.getId()), Integer.class))
                 .andExpect(jsonPath("$.status", is(booking.getStatus().toString())))
                 .andExpect(jsonPath("$.booker.id", is(booker.getId())));
