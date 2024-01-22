@@ -63,7 +63,6 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    @ResponseStatus(HttpStatus.CREATED)
     public CommentDto saveComment(@RequestHeader("X-Sharer-User-Id") int userId,
                                   @PathVariable int itemId,
                                   @RequestBody CommentDto commentDto) {
