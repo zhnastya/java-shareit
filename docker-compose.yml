@@ -9,7 +9,7 @@ services:
     depends_on:
       - server
     environment:
-      - 'SHAREIT_SERVER_URL=http://server:9090'
+      - SHAREIT_SERVER_URL=http://server:9090
 
   server:
     build: server/
@@ -20,9 +20,9 @@ services:
     depends_on:
       - db
     environment:
-      - 'SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres'
-      - 'SPRING_DATASOURCE_USER=postgres'
-      - 'SPRING_DATASOURCE_PASSWORD=nastya1029384756'
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USER=postgres
+      - SPRING_DATASOURCE_PASSWORD=nastya1029384756
 
   db:
     image: postgres:13.7-alpine
@@ -30,6 +30,6 @@ services:
     ports:
       - "6541:5432"
     environment:
-      - 'POSTGRES_DB=postgres'
-      - 'POSTGRES_USER=postgres'
-      - 'POSTGRES_PASSWORD=nastya1029384756'
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=nastya1029384756
