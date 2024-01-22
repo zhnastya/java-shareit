@@ -1,4 +1,4 @@
-FROM amazoncorretto:11
+FROM amazoncorretto:11-alpine-jdk
 ARG JAR_FILE=target/shareit-server-0.0.1-SNAPSHOT.jar
 WORKDIR /opt/app
 COPY ${JAR_FILE} app.jar
